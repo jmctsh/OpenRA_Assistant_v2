@@ -1,0 +1,20 @@
+# OpenRA Assistant ignore list
+
+# Python cache and environment
+__pycache__/
+*.pyc
+.venv/
+.env.local
+
+# IDE/editor configs
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
+
+# Core strategy modules hidden in public repo
+assistant/biods_enhancer.py
+assistant/command_parser.py
+assistant/private/**

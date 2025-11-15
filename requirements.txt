@@ -1,0 +1,8 @@
+python-dotenv>=1.0.0
+requests>=2.31.0
+PyQt5>=5.15.9
+PyQt5-Qt5>=5.15.2
+PyQt5-sip>=12.12.2
+volcengine-python-sdk[ark]
+websockets>=12.0
+keyboard>=0.13.5
