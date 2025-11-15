@@ -34,7 +34,7 @@ OpenRA Assistant 是一个分层式智能体系统，面向即时战略（RTS）
 - `assistant/brigade_runner.py`：旅长循环器（任务/巡逻）
 - `assistant/company_manager.py`：连队管理（固定三连：分配/合并/快照；不创建/撤销；标准命名）
 - `assistant/chief_of_staff.py`：参谋长快照（含 zones、候选防御坐标）
-- `assistant/ui/main_window.py`：黑暗半透明 UI 与架构树视图（展示各角色任务变量；点击连队名称将静默执行引擎选择，不在底部弹出提示）
+- `assistant/ui/main_window.py`：黑暗半透明 UI 与架构树视图（展示各角色任务变量；点击连队名称将静默执行引擎选择）
 - `assistant/command_parser.py`：指令解析器
 
 ## 运行与依赖
