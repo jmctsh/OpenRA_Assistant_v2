@@ -67,6 +67,8 @@ class CompanyAttackRunner:
                 if not in_circle(ex, ey):
                     continue
                 code = mapper.get_code(e.type) or e.type
+                if str(code).lower() == "mpspawn":
+                    continue
                 enemies.append({"id": e.actor_id, "type": code, "x": ex, "y": ey, "hp": getattr(e, 'hp', None), "maxHp": getattr(e, 'maxHp', None)})
         except Exception:
             enemies = []
