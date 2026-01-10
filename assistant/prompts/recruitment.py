@@ -10,7 +10,7 @@ def build_system_prompt(allies, brigades_info, battlefield, companies_snapshot, 
     parts.append("三连队推荐编制与功能：\n- company1（主力装甲）：以 3tnk/4tnk 为主，搭配少量 e1/e3 掩护。\n- company2（远程火力）：以 v2rl 为主，搭配少量 3tnk 与 e3 掩护。\n- company3（包抄奇袭/预备队）：以 ftrk 为主，若可用则编入 yak/mig；搭配少量 e1/e3/3tnk 掩护。")
     parts.append("分配流程（层级化）：先按旅长层级确定增兵方向（见‘旅长补充优先序’），再在目标旅长下按连队优先序分配：优先补充 company1 与 company2；在两者各自兵力均≥10 之前，不为 company3 分配兵力；仅在兵力充沛时才补充 company3。")
     parts.append("批量入编规则：在一次计划中尽可能将所有‘未编入单位’全部编入；按照旅长辖区与就近原则进行分配；优先填充 company1 与 company2，溢出后分配至 company3；工具输出必须覆盖所有未编入单位的 id，不得遗漏。")
-    parts.append("旅长补充优先序（动态阈值）：当 brigade_1 所辖连队单位总数达到≥20 时，开始向 brigade_3 增兵；当 brigade_3 所辖连队单位总数达到≥20 时，开始向 brigade_2 与 brigade_4 增兵，且将更多兵力补充给 brigade_3（单位总数按 companies_snapshot.companies 中各公司 count 聚合其 brigade 字段求和）。")
+    parts.append("旅长补充优先序（动态阈值）：当 brigade_1 所辖连队单位总数达到≥20 时，开始向 brigade_3 增兵；当 brigade_3 所辖连队单位总数达到≥20 时，开始向 brigade_1、brigade_2、brigade_3、brigade_4 同时增兵，且将更多兵力补充给 brigade_3（单位总数按 companies_snapshot.companies 中各公司 count 聚合其 brigade 字段求和）。")
     parts.append("仅显示未编入单位：本提示词仅提供 ‘unassigned_units’ 列表，不显示已编入连队的单位明细，避免误操作覆盖。")
     parts.append("数据目录：brigades_info[{name,code,bounds}]；companies_snapshot{companies{name,code,brigade,count,composition{type_code:count}},brigades{code/name:[连队名...]}}；unassigned_units[{id,type}]。")
     try:
