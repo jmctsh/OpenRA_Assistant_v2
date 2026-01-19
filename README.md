@@ -31,7 +31,7 @@ OpenRA Assistant 是一个分层式智能体系统，面向即时战略（RTS）
 为保护核心策略与避免被直接拿去用，公开仓库中通过 `.gitignore` 隐藏以下文件：
 
 - `assistant/command_parser.py`（指令解析）
-- `assistant/biods_enhancer.py`（本地算法增强）
+- `assistant/tactical_core/`（本地战术核心算法）
 
 ## 注意事项
 

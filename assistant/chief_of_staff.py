@@ -5,6 +5,14 @@ from .unit_mapping import UnitMapper
 from .game_data_query import get_ally_combat_units, get_enemy_all_units
 
 
+def _is_valid_unit(u_type: str) -> bool:
+    """过滤掉无效单位（如出生点、残骸）"""
+    t = str(u_type).lower()
+    if "husk" in t or "残骸" in t or "mpspawn" in t:
+        return False
+    return True
+
+
 class ChiefOfStaff:
     def __init__(self, api_client: GameAPIClient, unit_mapper: UnitMapper):
         self.api = api_client
@@ -35,7 +43,9 @@ class ChiefOfStaff:
         except Exception:
             allies = []
         try:
-            enemies = get_enemy_all_units(self.api, self.mapper)
+            enemies_raw = get_enemy_all_units(self.api, self.mapper)
+            # 过滤残骸
+            enemies = [e for e in enemies_raw if _is_valid_unit(e.get("type"))]
         except Exception:
             enemies = []
         ally_base = None
@@ -46,6 +56,8 @@ class ChiefOfStaff:
             actors_ally = []
         try:
             actors_enemy = self.api.query_actor(TargetsQueryParam(faction="敌方"))
+            # 过滤残骸
+            actors_enemy = [e for e in actors_enemy if _is_valid_unit(e.type)]
         except Exception:
             actors_enemy = []
         for a in actors_ally:

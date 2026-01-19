@@ -18,4 +18,5 @@ logs/
 # Core strategy modules hidden in public repo
 assistant/biods_enhancer.py
 assistant/command_parser.py
+assistant/tactical_core/
 assistant/private/**

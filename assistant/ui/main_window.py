@@ -254,11 +254,23 @@ class MainWindow(QMainWindow):
         self.enable_recruit_cb.setFocusPolicy(Qt.NoFocus)
         self.enable_recruit_cb.stateChanged.connect(self.on_recruitment_option_changed)
         pre_opts_layout.addWidget(self.enable_recruit_cb)
-        
-        pass
-        
+
         pre_opts_layout.addStretch()
         left_layout.addLayout(pre_opts_layout)
+
+        # 第二行选项条
+        second_opts_layout = QHBoxLayout()
+
+        # 战术模块UI开关
+        self.enable_tactical_ui_cb = QCheckBox("开启战术模块")
+        self.enable_tactical_ui_cb.setChecked(False)
+        self.enable_tactical_ui_cb.setStyleSheet("QCheckBox {color: white;}")
+        self.enable_tactical_ui_cb.setFocusPolicy(Qt.NoFocus)
+        self.enable_tactical_ui_cb.stateChanged.connect(self.on_tactical_module_option_changed)
+        second_opts_layout.addWidget(self.enable_tactical_ui_cb)
+        
+        second_opts_layout.addStretch()
+        left_layout.addLayout(second_opts_layout)
 
         self.arch_tree = QTreeWidget(self)
         self.arch_tree.setHeaderLabels(["角色", "任务"])
@@ -834,18 +846,16 @@ class MainWindow(QMainWindow):
                 # 旧战斗专家任务已移除
                 self.current_battle_task_id = None
                 # 自动启用 biods 增强（不再需要 UI 开关）
+                # 战术模块已常驻，此处仅需确保注入 LLM
                 try:
                     unit_mapper = getattr(self.command_parser, 'unit_mapper', None)
                     llm_proc = getattr(self.command_parser, 'llm_attack_processor', None)
                     if unit_mapper is not None:
-                        if not hasattr(self, 'biods_enhancer') or self.biods_enhancer is None:
-                            self.biods_enhancer = BiodsEnhancer(enabled=True)
-                        else:
+                        self._ensure_biods_initialized()
+                        if self.biods_enhancer:
                             self.biods_enhancer.enabled = True
-                        if llm_proc and hasattr(llm_proc, 'set_biods_enhancer'):
-                            llm_proc.set_biods_enhancer(self.biods_enhancer)
-                        if hasattr(self.biods_enhancer, 'start'):
-                            self.biods_enhancer.start(self.api_client, unit_mapper)
+                            if llm_proc and hasattr(llm_proc, 'set_biods_enhancer'):
+                                llm_proc.set_biods_enhancer(self.biods_enhancer)
                 except Exception:
                     pass
                 if hasattr(self, 'expert_task_poll_timer'):
@@ -860,6 +870,62 @@ class MainWindow(QMainWindow):
                 except Exception:
                     pass
                 # biods 算法增强 UI 已移除，无需恢复开关
+        except Exception:
+            pass
+
+    def on_tactical_module_option_changed(self):
+        """战术模块开关变更：勾选=启动+显示UI，取消=停止+隐藏UI"""
+        try:
+            enabled = bool(self.enable_tactical_ui_cb.isChecked())
+            
+            # 确保战术模块已初始化
+            self._ensure_biods_initialized()
+            
+            if self.biods_enhancer:
+                if enabled:
+                    # 启动并显示UI
+                    if hasattr(self.biods_enhancer, 'start'):
+                        self.biods_enhancer.start(self.api_client, show_log_window=True)
+                        # 确保窗口显示（start若已运行可能不会重新弹窗）
+                        if hasattr(self.biods_enhancer, 'show_log_window'):
+                            self.biods_enhancer.show_log_window()
+                else:
+                    # 停止并隐藏UI
+                    if hasattr(self.biods_enhancer, 'stop'):
+                        self.biods_enhancer.stop()
+                    if hasattr(self.biods_enhancer, 'hide_log_window'):
+                        self.biods_enhancer.hide_log_window()
+        except Exception:
+            pass
+
+    def _ensure_biods_initialized(self):
+        """确保战术模块已加载并启动（随主程序常驻）"""
+        try:
+            unit_mapper = getattr(self.command_parser, 'unit_mapper', None)
+            llm_proc = getattr(self.command_parser, 'llm_attack_processor', None)
+            
+            if unit_mapper is not None:
+                if not hasattr(self, 'biods_enhancer') or self.biods_enhancer is None:
+                    try:
+                        import importlib
+                        enhancer_module = importlib.import_module("assistant.tactical_core.enhancer")
+                        BiodsEnhancer = enhancer_module.BiodsEnhancer
+                        self.biods_enhancer = BiodsEnhancer(enabled=True)
+                        
+                        # 注入到 LLM 处理器
+                        if llm_proc and hasattr(llm_proc, 'set_biods_enhancer'):
+                            llm_proc.set_biods_enhancer(self.biods_enhancer)
+                            
+                        # 立即启动后台线程（不显示窗口）
+                        if hasattr(self.biods_enhancer, 'start'):
+                            self.biods_enhancer.start(self.api_client, show_log_window=False)
+                            # 强制开启日志记录，只控制窗口显隐
+                            import os
+                            os.environ["LLM_DEBUG"] = "1"
+                            
+                    except ImportError:
+                        print("Warning: Failed to import BiodsEnhancer from assistant.tactical_core")
+                        self.biods_enhancer = None
         except Exception:
             pass
 
@@ -908,18 +974,16 @@ class MainWindow(QMainWindow):
                 # 旧战斗专家任务已移除
                 self.current_battle_task_id = None
                 # 自动启用 biods 增强（不再需要 UI 开关）
+                # 战术模块已常驻，此处仅需确保注入 LLM
                 try:
                     unit_mapper = getattr(self.command_parser, 'unit_mapper', None)
                     llm_proc = getattr(self.command_parser, 'llm_attack_processor', None)
                     if unit_mapper is not None:
-                        if not hasattr(self, 'biods_enhancer') or self.biods_enhancer is None:
-                            self.biods_enhancer = BiodsEnhancer(enabled=True)
-                        else:
+                        self._ensure_biods_initialized()
+                        if self.biods_enhancer:
                             self.biods_enhancer.enabled = True
-                        if llm_proc and hasattr(llm_proc, 'set_biods_enhancer'):
-                            llm_proc.set_biods_enhancer(self.biods_enhancer)
-                        if hasattr(self.biods_enhancer, 'start'):
-                            self.biods_enhancer.start(self.api_client, unit_mapper)
+                            if llm_proc and hasattr(llm_proc, 'set_biods_enhancer'):
+                                llm_proc.set_biods_enhancer(self.biods_enhancer)
                 except Exception:
                     pass
                 if hasattr(self, 'expert_task_poll_timer'):
@@ -1420,7 +1484,14 @@ class MainWindow(QMainWindow):
         return super().eventFilter(obj, event)
 
     def closeEvent(self, event):
-        pass
+        # 停止战术模块
+        try:
+            if hasattr(self, 'biods_enhancer') and self.biods_enhancer:
+                if hasattr(self.biods_enhancer, 'stop'):
+                    self.biods_enhancer.stop()
+        except Exception:
+            pass
+
         # 退出前清理全局键盘钩子/热键，避免驻留
         try:
             if keyboard is not None:
@@ -1815,7 +1886,7 @@ class MainWindow(QMainWindow):
                 (8.0, ["造大核电"]),
                 (3.5, ["造重工"]),
                 (11.0, ["造维修厂", "造3个防空车"]),
-                (6.5, ["造矿车", "造高科"]),
+                (6.5, ["造矿车", "造高科技"]),
                 (8.0, ["造3个天启", "造兵营", "造电厂", "造矿场"]),
             ]
         return []

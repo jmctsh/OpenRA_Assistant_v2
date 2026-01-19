@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from .api_client import GameAPIClient, TargetsQueryParam, Actor, Location
 from .unit_mapping import UnitMapper
 from .chief_of_staff import ChiefOfStaff
-from .biods_enhancer import BiodsEnhancer
 from .doubao_client import DoubaoClient
 from .llm_roles import LLMSecretary, LLMLogistics, LLMBrigadeCommander, LLMRecruitment
 from .logistics_runner import LogisticsRunner
@@ -523,17 +522,24 @@ class BrigadeCommander:
 
 class ProcessFactory:
     def __init__(self):
-        self.enhancer = BiodsEnhancer(enabled=True)
+        try:
+            import importlib
+            enhancer_module = importlib.import_module("assistant.tactical_core.enhancer")
+            BiodsEnhancer = enhancer_module.BiodsEnhancer
+            self.enhancer = BiodsEnhancer(enabled=True)
+        except ImportError:
+            print("Warning: Failed to import BiodsEnhancer from assistant.tactical_core")
+            self.enhancer = None
         self.running = False
 
     def start(self, api: GameAPIClient, mapper: UnitMapper):
-        if self.running:
+        if self.running or not self.enhancer:
             return
-        self.enhancer.start(api, mapper)
+        self.enhancer.start(api)
         self.running = True
 
     def stop(self):
-        if not self.running:
+        if not self.running or not self.enhancer:
             return
         self.enhancer.stop()
         self.running = False

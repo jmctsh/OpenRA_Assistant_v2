@@ -67,7 +67,9 @@ class CompanyAttackRunner:
                 if not in_circle(ex, ey):
                     continue
                 code = mapper.get_code(e.type) or e.type
-                if str(code).lower() == "mpspawn":
+                code_str = str(code).lower()
+                # 过滤掉出生点标记(mpspawn)和残骸(husk)
+                if code_str == "mpspawn" or "husk" in code_str or "残骸" in code_str:
                     continue
                 enemies.append({"id": e.actor_id, "type": code, "x": ex, "y": ey, "hp": getattr(e, 'hp', None), "maxHp": getattr(e, 'maxHp', None)})
         except Exception:
@@ -115,7 +117,7 @@ class CompanyAttackRunner:
                             enhancer = getattr(getattr(self.ai_hq, 'process', None), 'enhancer', None)
                             if enhancer and getattr(enhancer, 'enabled', False):
                                 tuples = [(int(p[0]), int(p[1])) for p in pairs if isinstance(p, list) and len(p) == 2]
-                                enhancer.enhance_execute(self.ai_hq.api, self.ai_hq.mapper, tuples)
+                                enhancer.enhance_execute(self.ai_hq.api, tuples)
                             else:
                                 self.llm.execute_pairs(self.ai_hq.api, pairs)
                         except Exception:
