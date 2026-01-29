@@ -26,11 +26,11 @@ OpenRA Assistant 是一个分层式智能体系统，面向即时战略（RTS）
 
 本项目采用 GPL-3.0 开源许可证。详情参见仓库中的 `LICENSE` 文件。
 
-## 核心代码隐藏说明
+## 代码隐藏说明
 
-为避免被直接拿去用，公开仓库中通过 `.gitignore` 隐藏以下文件：
+公开仓库中通过 `.gitignore` 隐藏以下屎山代码：
 
-- `assistant/command_parser.py`（指令解析）
+- `assistant/command_parser.py`（NLP模块，对应“指令”功能）
 
 ## 注意事项
 
