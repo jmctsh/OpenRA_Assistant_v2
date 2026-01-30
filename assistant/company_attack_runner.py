@@ -68,8 +68,8 @@ class CompanyAttackRunner:
                     continue
                 code = mapper.get_code(e.type) or e.type
                 code_str = str(code).lower()
-                # 过滤掉出生点标记(mpspawn)和残骸(husk)
-                if code_str == "mpspawn" or "husk" in code_str or "残骸" in code_str:
+                # 过滤掉出生点标记(mpspawn)和残骸(husk/hask)
+                if code_str == "mpspawn" or "husk" in code_str or "hask" in code_str or "残骸" in code_str:
                     continue
                 
                 # 计算血量百分比 (保留2位小数)
@@ -96,6 +96,13 @@ class CompanyAttackRunner:
                     if not in_circle(ax, ay):
                         continue
                     code = mapper.get_code(a.type) or a.type
+                    code_str = str(code).lower()
+                    
+                    # 己方过滤：非战斗单位不参与战术分配
+                    # e6(工程师), mcv(基地车), harv(矿车), hask/husk(残骸), mpspawn(出生点)
+                    if code_str in ("e6", "mcv", "harv", "mpspawn") or "husk" in code_str or "hask" in code_str or "残骸" in code_str:
+                        continue
+                        
                     # 我方仅需要基础信息，移除血量以减少Token消耗
                     allies.append({"id": a.actor_id, "type": code, "x": ax, "y": ay})
         except Exception:
