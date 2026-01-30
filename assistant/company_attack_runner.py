@@ -71,7 +71,13 @@ class CompanyAttackRunner:
                 # 过滤掉出生点标记(mpspawn)和残骸(husk)
                 if code_str == "mpspawn" or "husk" in code_str or "残骸" in code_str:
                     continue
-                enemies.append({"id": e.actor_id, "type": code, "x": ex, "y": ey, "hp": getattr(e, 'hp', None), "maxHp": getattr(e, 'maxHp', None)})
+                
+                # 计算血量百分比 (保留2位小数)
+                hp = getattr(e, 'hp', 0) or 0
+                max_hp = getattr(e, 'maxHp', 1) or 1
+                hp_ratio = round(hp / max_hp, 2) if max_hp > 0 else 0.0
+                
+                enemies.append({"id": e.actor_id, "type": code, "x": ex, "y": ey, "hp": hp_ratio})
         except Exception:
             enemies = []
         try:
@@ -90,7 +96,8 @@ class CompanyAttackRunner:
                     if not in_circle(ax, ay):
                         continue
                     code = mapper.get_code(a.type) or a.type
-                    allies.append({"id": a.actor_id, "type": code, "x": ax, "y": ay, "hp": getattr(a, 'hp', None), "maxHp": getattr(a, 'maxHp', None)})
+                    # 我方仅需要基础信息，移除血量以减少Token消耗
+                    allies.append({"id": a.actor_id, "type": code, "x": ax, "y": ay})
         except Exception:
             allies = []
         return {"enemies": enemies, "allies": allies}
