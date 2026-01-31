@@ -188,7 +188,7 @@ class LLMCompanyAttack(LLMRole):
                     buffer += delta
                     try:
                         data = json.loads(buffer)
-                        arr = data.get("pairs") if isinstance(data, dict) else None
+                        arr = data if isinstance(data, list) else (data.get("pairs") if isinstance(data, dict) else None)
                         if isinstance(arr, list):
                             out_pairs = [p for p in arr if isinstance(p, list) and len(p) == 2 and all(isinstance(x, int) for x in p)]
                     except Exception:
@@ -199,7 +199,7 @@ class LLMCompanyAttack(LLMRole):
         try:
             raw = self.client.chat_json(system_prompt=system_prompt, user_prompt=user_prompt, temperature=0.1, max_tokens=4096)
             data = json.loads(raw)
-            arr = data.get("pairs") if isinstance(data, dict) else None
+            arr = data if isinstance(data, list) else (data.get("pairs") if isinstance(data, dict) else None)
             if isinstance(arr, list):
                 out_pairs = [p for p in arr if isinstance(p, list) and len(p) == 2 and all(isinstance(x, int) for x in p)]
         except Exception:
@@ -221,7 +221,7 @@ class LLMCompanyAttack(LLMRole):
                     buffer += delta
                     try:
                         data = json.loads(buffer)
-                        arr = data.get("pairs") if isinstance(data, dict) else None
+                        arr = data if isinstance(data, list) else (data.get("pairs") if isinstance(data, dict) else None)
                         if isinstance(arr, list):
                             pairs = [p for p in arr if isinstance(p, list) and len(p) == 2 and all(isinstance(x, int) for x in p)]
                             if pairs:
